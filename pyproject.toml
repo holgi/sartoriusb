@@ -1,0 +1,50 @@
+[build-system]
+requires = ["flit"]
+build-backend = "flit.buildapi"
+
+[tool.flit.metadata]
+module = "pysartoriusb"
+author = "Holger Frey"
+author-email = "frey@imtek.de"
+home-page = "https://git.cpi.imtek.uni-freiburg.de/holgi/pysartoriusb"
+description-file = "README.md"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: Freely Distributable",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Scientific/Engineering",
+]
+requires = [
+    "pyserial >= 3.4",
+]
+requires-python = ">=3.7"
+
+[tool.flit.metadata.requires-extra]
+test = [
+    "black",
+    "flake8",
+    "flake8-comprehensions",
+    "pytest >=4.0.0",
+    "pytest-cov",
+    "pytest-mock",
+]
+dev = [
+    "keyring",
+]
+
+[tool.black]
+line-length = 79
+py37 = true
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
