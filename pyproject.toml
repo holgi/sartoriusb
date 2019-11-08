@@ -3,11 +3,13 @@ requires = ["flit"]
 build-backend = "flit.buildapi"
 
 [tool.flit.metadata]
-module = "pysartoriusb"
+module = "sartoriusb"
+dist-name = "SartoriUSB"
 author = "Holger Frey"
 author-email = "frey@imtek.de"
-home-page = "https://git.cpi.imtek.uni-freiburg.de/holgi/pysartoriusb"
+home-page = "https://github.com/holgi/sartoriusb"
 description-file = "README.md"
+license = "Beerware"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",

@@ -4,7 +4,7 @@ from unittest.mock import call
 
 
 def test_sartorius_usb_init():
-    from pysartoriusb import SartoriusUsb
+    from sartoriusb import SartoriusUsb
 
     sub = SartoriusUsb(1, 2, timeout=3, something=4, different=6)
 
@@ -15,7 +15,7 @@ def test_sartorius_usb_init():
 
 @pytest.mark.parametrize("con_value,expected", [(None, 1), ("Something", 0)])
 def test_sartorius_usb_connection_property(mocker, con_value, expected):
-    from pysartoriusb import SartoriusUsb
+    from sartoriusb import SartoriusUsb
 
     mocker.patch.object(SartoriusUsb, "open")
     sub = SartoriusUsb()
@@ -28,7 +28,7 @@ def test_sartorius_usb_connection_property(mocker, con_value, expected):
 
 
 def test_sartorius_usb_parameters_passed_to_serial(mocker):
-    from pysartoriusb import SartoriusUsb, serial
+    from sartoriusb import SartoriusUsb, serial
 
     mocker.patch.object(serial, "Serial", return_value="dummy connection")
     sub = SartoriusUsb(1, 2, something=4, different=6)
@@ -43,7 +43,7 @@ def test_sartorius_usb_parameters_passed_to_serial(mocker):
 
 
 def test_sartorius_usb_close_calls_close_on_established_connection(mocker):
-    from pysartoriusb import SartoriusUsb
+    from sartoriusb import SartoriusUsb
 
     sub = SartoriusUsb()
     sub._con = mocker.Mock()
@@ -59,7 +59,7 @@ def test_sartorius_usb_close_calls_close_on_established_connection(mocker):
     "value,expected", [(b"bytes", b"bytes"), ("string", b"string")]
 )
 def test_sartorius_sends_bytes(mocker, value, expected):
-    from pysartoriusb import SartoriusUsb, ESC, CR, LF
+    from sartoriusb import SartoriusUsb, ESC, CR, LF
 
     sub = SartoriusUsb()
     sub._con = mocker.Mock()
@@ -71,7 +71,7 @@ def test_sartorius_sends_bytes(mocker, value, expected):
 
 
 def test_sartorius_read_passes_argument(mocker):
-    from pysartoriusb import SartoriusUsb
+    from sartoriusb import SartoriusUsb
 
     sub = SartoriusUsb()
     sub._con = mocker.Mock()
@@ -85,7 +85,7 @@ def test_sartorius_read_passes_argument(mocker):
 
 
 def test_sartorius_readline(mocker):
-    from pysartoriusb import SartoriusUsb
+    from sartoriusb import SartoriusUsb
 
     sub = SartoriusUsb()
     sub._con = mocker.Mock()
@@ -104,7 +104,7 @@ def test_sartorius_readline(mocker):
     [(0, []), (1, ["one"]), (2, ["one", "two"]), (3, ["one", "two", "three"])],
 )
 def test_sartorius_readlines(mocker, stop_line, stop_position, expected):
-    from pysartoriusb import SartoriusUsb
+    from sartoriusb import SartoriusUsb
 
     data = [b"one", b"two", b"three", b"four", b"five"]
     data[stop_position] = stop_line
@@ -120,7 +120,7 @@ def test_sartorius_readlines(mocker, stop_line, stop_position, expected):
 
 
 def test_sartorius_get(mocker):
-    from pysartoriusb import SartoriusUsb
+    from sartoriusb import SartoriusUsb
 
     sub = SartoriusUsb()
     mocker.patch.object(sub, "send")
@@ -136,7 +136,7 @@ def test_sartorius_get(mocker):
 
 
 def test_sartorius_measure_with_data(mocker):
-    from pysartoriusb import SartoriusUsb, CMD_PRINT
+    from sartoriusb import SartoriusUsb, CMD_PRINT
 
     sub = SartoriusUsb()
     mocker.patch.object(sub, "get", return_value=["value", "some other stuff"])
@@ -152,7 +152,7 @@ def test_sartorius_measure_with_data(mocker):
 
 
 def test_sartorius_measure_with_timeout(mocker):
-    from pysartoriusb import SartoriusUsb, CMD_PRINT
+    from sartoriusb import SartoriusUsb, CMD_PRINT
 
     sub = SartoriusUsb()
     mocker.patch.object(sub, "get", return_value=[])
@@ -178,7 +178,7 @@ def test_sartorius_measure_with_timeout(mocker):
 def test_sartorius_parse_measurement(
     mocker, value, count_16, count_22, expected
 ):
-    from pysartoriusb import SartoriusUsb
+    from sartoriusb import SartoriusUsb
 
     sub = SartoriusUsb()
     mocker.patch.object(sub, "_parse_16_char_output", return_value="16")
@@ -192,7 +192,7 @@ def test_sartorius_parse_measurement(
 
 
 def test_sartorius_parse_22_char_output(mocker):
-    from pysartoriusb import SartoriusUsb
+    from sartoriusb import SartoriusUsb
 
     sub = SartoriusUsb()
     mocker.patch.object(sub, "_parse_16_char_output", return_value="16")
@@ -217,7 +217,7 @@ def test_sartorius_parse_22_char_output(mocker):
     ],
 )
 def test_sartorius_measurement_is_message(value, expected):
-    from pysartoriusb import SartoriusUsb
+    from sartoriusb import SartoriusUsb
 
     sub = SartoriusUsb()
     result = sub._is_message(value)
@@ -238,7 +238,7 @@ def test_sartorius_measurement_is_message(value, expected):
     ],
 )
 def test_sartorius_adjust_raw_data_for_calibration_note(value, data, cal):
-    from pysartoriusb import SartoriusUsb
+    from sartoriusb import SartoriusUsb
 
     sub = SartoriusUsb()
     result = sub._adjust_raw_data_for_calibration_note(value)
@@ -258,7 +258,7 @@ def test_sartorius_adjust_raw_data_for_calibration_note(value, data, cal):
     ],
 )
 def test_sartorius_parse_16_char_output(text, value, unit, stable, cal):
-    from pysartoriusb import SartoriusUsb
+    from sartoriusb import SartoriusUsb
 
     sub = SartoriusUsb()
     result = sub._parse_16_char_output(text, mode="X")
@@ -267,7 +267,7 @@ def test_sartorius_parse_16_char_output(text, value, unit, stable, cal):
 
 
 def test_sartorius_parse_16_char_output_on_message(mocker):
-    from pysartoriusb import SartoriusUsb
+    from sartoriusb import SartoriusUsb
 
     sub = SartoriusUsb()
     mocker.patch.object(sub, "_adjust_raw_data_for_calibration_note")
@@ -277,7 +277,7 @@ def test_sartorius_parse_16_char_output_on_message(mocker):
 
 
 def test_sartorius_context_manager(mocker):
-    from pysartoriusb import SartoriusUsb
+    from sartoriusb import SartoriusUsb
 
     sub = SartoriusUsb()
     mocker.patch.object(sub, "open")
