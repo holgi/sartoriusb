@@ -4,7 +4,7 @@ Controlling a Sartorius Scale via USB
 
 """
 
-__version__ = "0.0.4"
+__version__ = "0.0.5"
 
 import serial
 
@@ -77,12 +77,20 @@ class SartoriusUsb:
     def connection(self):
         """ returns the serial connection, establishes a new one if needed """
         if self._con is None:
-            self.open()
+            self.connect()
         return self._con
 
-    def open(self):
+    def connect(self):
         """ establishes a new serial connection """
         self._con = serial.Serial(*self._serial_args, **self._serial_kargs)
+
+    def open(self):
+        """ establishes a new serial connection
+
+        This function just calls the 'connect()' method and is here for
+        compability with other libraries that use open() / close()
+        """
+        self.connect()
 
     def close(self):
         """ closes a serial connection, if one is open """
@@ -199,7 +207,7 @@ class SartoriusUsb:
 
     def __enter__(self):
         """ Context manager: establishes connection """
-        self.open()
+        self.connect()
         return self
 
     def __exit__(self, exc_type, exc_value, exc_traceback):

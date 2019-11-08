@@ -17,29 +17,40 @@ def test_sartorius_usb_init():
 def test_sartorius_usb_connection_property(mocker, con_value, expected):
     from sartoriusb import SartoriusUsb
 
-    mocker.patch.object(SartoriusUsb, "open")
+    mocker.patch.object(SartoriusUsb, "connect")
     sub = SartoriusUsb()
     sub._con = con_value
 
     con = sub.connection
 
-    assert sub.open.call_count == expected
+    assert sub.connect.call_count == expected
     assert con == con_value
 
 
-def test_sartorius_usb_parameters_passed_to_serial(mocker):
+def test_sartorius_connect_usb_parameters_passed_to_serial(mocker):
     from sartoriusb import SartoriusUsb, serial
 
     mocker.patch.object(serial, "Serial", return_value="dummy connection")
     sub = SartoriusUsb(1, 2, something=4, different=6)
 
-    sub.open()
+    sub.connect()
 
     assert serial.Serial.call_count == 1
     assert serial.Serial.call_args == call(
         1, 2, timeout=1, something=4, different=6
     )
     assert sub._con == "dummy connection"
+
+
+def test_sartorius_open_calls_connect(mocker):
+    from sartoriusb import SartoriusUsb
+
+    mocker.patch.object(SartoriusUsb, "connect")
+    sub = SartoriusUsb()
+
+    sub.open()
+
+    assert sub.connect.call_count == 1
 
 
 def test_sartorius_usb_close_calls_close_on_established_connection(mocker):
@@ -280,13 +291,13 @@ def test_sartorius_context_manager(mocker):
     from sartoriusb import SartoriusUsb
 
     sub = SartoriusUsb()
-    mocker.patch.object(sub, "open")
+    mocker.patch.object(sub, "connect")
     mocker.patch.object(sub, "close")
 
     with sub as context:
         assert sub is context
-        assert sub.open.call_count == 1
+        assert sub.connect.call_count == 1
         assert sub.close.call_count == 0
 
-    assert sub.open.call_count == 1
+    assert sub.connect.call_count == 1
     assert sub.close.call_count == 1

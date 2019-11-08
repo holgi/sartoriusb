@@ -48,14 +48,14 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr htmlcov/
 
 lint: ## check style with flake8
-	black pysartoriusb tests
-	flake8 pysartoriusb tests
+	black sartoriusb tests
+	flake8 sartoriusb tests
 
 test: ## run tests quickly (without tests for example.py) with the default Python
 	pytest tests -x --disable-warnings -k "not app"
 
 coverage: ## check code coverage with the default Python
-	pytest tests --cov=pysartoriusb
+	pytest tests --cov=sartoriusb
 	coverage html
 	$(BROWSER) htmlcov/index.html
 
