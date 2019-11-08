@@ -4,7 +4,7 @@ Controlling a Sartorius Scale via USB
 
 """
 
-__version__ = "0.1.1"
+__version__ = "0.2.0"
 
 import serial
 
@@ -79,7 +79,8 @@ class SartoriusUsb:
 
     def connect(self):
         """ establishes a new serial connection """
-        self._con = serial.Serial(*self._serial_args, **self._serial_kargs)
+        if self._con is None:
+            self._con = serial.Serial(*self._serial_args, **self._serial_kargs)
 
     def open(self):
         """ establishes a new serial connection
@@ -132,81 +133,10 @@ class SartoriusUsb:
         raw_data_lines = self.get(CMD_PRINT)
         if raw_data_lines:
             raw_data = raw_data_lines[0]
-            return self.parse_measurement(raw_data)
+            return parse_measurement(raw_data)
         else:
             # propably serial connection timeout
             return Measurement(None, None, None, None, "Connection Timeout")
-
-    def parse_measurement(self, raw_data):
-        """ parses the raw data from a measurement """
-        if len(raw_data) <= 16:
-            return self._parse_16_char_output(raw_data)
-        else:
-            return self._parse_22_char_output(raw_data)
-
-    def _parse_22_char_output(self, raw_data):
-        """ parse a 16 character measurement output
-
-        The scale can be set to return two different types of output. This
-        function parses a 16 character output.
-        """
-
-        mode = raw_data[:6].strip()
-        rest = raw_data[6:]
-
-        return self._parse_16_char_output(rest, mode)
-
-    def _parse_16_char_output(self, raw_data, mode="unknown"):
-        """ parse a 16 character measurement output
-
-        The scale can be set to return two different types of output. This
-        function parses a 16 character output.
-        """
-
-        if self._is_message(raw_data):
-            msg = raw_data.strip()
-            return Measurement(None, None, None, None, msg)
-
-        raw_data = self._remove_calibration_note(raw_data)
-
-        sign = raw_data[0].strip()
-        value_and_unit = raw_data[1:].strip()
-        parts = value_and_unit.rsplit(" ", 1)
-        raw_value = parts[0]
-        value = sign + "".join(raw_value.split())
-
-        if len(parts) == 2:
-            unit = parts[1]
-            stable = True
-        else:
-            unit = None
-            stable = False
-
-        return Measurement(mode, value, unit, stable, None)
-
-    def _is_message(self, raw_data):
-        """ returns the message that occured in a measurement or False """
-        for identifier in ("high", "low", "cal", "err", "--"):
-            if identifier in raw_data.lower():
-                return True
-        return False
-
-    def _remove_calibration_note(self, raw_data):
-        """ adjusts the raw data string if a calibration note is present
-
-        According to the manual, this should not happen in SBI mode of the
-        scale. This is included to prevent hiccups but probably not handled
-        the right way....
-
-        The data with a calibration node on in put and output of this method
-
-        in:  "+123.4567[8]g  "
-        out: "+123.45678  g  "
-
-        """
-        if "[" in raw_data:
-            raw_data = raw_data.replace("[", "").replace("]", "  ")
-        return raw_data
 
     def __enter__(self):
         """ Context manager: establishes connection """
@@ -216,3 +146,77 @@ class SartoriusUsb:
     def __exit__(self, exc_type, exc_value, exc_traceback):
         """ Context manager: closes connection """
         self.close()
+
+
+
+
+def parse_measurement(raw_data):
+    """ parses the raw data from a measurement """
+    if len(raw_data) <= 16:
+        return _parse_16_char_output(raw_data)
+    else:
+        return _parse_22_char_output(raw_data)
+
+def _parse_22_char_output(raw_data):
+    """ parse a 16 character measurement output
+
+    The scale can be set to return two different types of output. This
+    function parses a 16 character output.
+    """
+
+    mode = raw_data[:6].strip()
+    rest = raw_data[6:]
+
+    return _parse_16_char_output(rest, mode)
+
+def _parse_16_char_output(raw_data, mode="unknown"):
+    """ parse a 16 character measurement output
+
+    The scale can be set to return two different types of output. This
+    function parses a 16 character output.
+    """
+
+    if _is_message(raw_data):
+        msg = raw_data.strip()
+        return Measurement(None, None, None, None, msg)
+
+    raw_data = _remove_calibration_note(raw_data)
+
+    sign = raw_data[0].strip()
+    value_and_unit = raw_data[1:].strip()
+    parts = value_and_unit.rsplit(" ", 1)
+    raw_value = parts[0]
+    value = sign + "".join(raw_value.split())
+
+    if len(parts) == 2:
+        unit = parts[1]
+        stable = True
+    else:
+        unit = None
+        stable = False
+
+    return Measurement(mode, value, unit, stable, None)
+
+def _is_message(raw_data):
+    """ returns the message that occured in a measurement or False """
+    for identifier in ("high", "low", "cal", "err", "--"):
+        if identifier in raw_data.lower():
+            return True
+    return False
+
+def _remove_calibration_note(raw_data):
+    """ adjusts the raw data string if a calibration note is present
+
+    According to the manual, this should not happen in SBI mode of the
+    scale. This is included to prevent hiccups but probably not handled
+    the right way....
+
+    The data with a calibration node on in put and output of this method
+
+    in:  "+123.4567[8]g  "
+    out: "+123.45678  g  "
+
+    """
+    if "[" in raw_data:
+        raw_data = raw_data.replace("[", "").replace("]", "  ")
+    return raw_data

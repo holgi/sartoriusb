@@ -42,11 +42,23 @@ def test_sartorius_connect_usb_parameters_passed_to_serial(mocker):
     assert sub._con == "dummy connection"
 
 
+def test_sartorius_connect_on_alredy_established_connection(mocker):
+    from sartoriusb import SartoriusUsb, serial
+
+    mocker.patch.object(serial, "Serial")
+    sub = SartoriusUsb()
+    sub._con = "alredy connected"
+
+    sub.connect()
+
+    assert serial.Serial.call_count == 0
+
+
 def test_sartorius_open_calls_connect(mocker):
     from sartoriusb import SartoriusUsb
 
-    mocker.patch.object(SartoriusUsb, "connect")
     sub = SartoriusUsb()
+    sub.connect = mocker.Mock()
 
     sub.open()
 
@@ -151,14 +163,12 @@ def test_sartorius_measure_with_data(mocker):
 
     sub = SartoriusUsb()
     mocker.patch.object(sub, "get", return_value=["value", "some other stuff"])
-    mocker.patch.object(sub, "parse_measurement", return_value="parsed result")
+    mocker.patch("sartoriusb.parse_measurement", return_value="parsed result")
 
     result = sub.measure()
 
     assert sub.get.call_count == 1
     assert sub.get.call_args == call(CMD_PRINT)
-    assert sub.parse_measurement.call_count == 1
-    assert sub.parse_measurement.call_args == call("value")
     assert result == "parsed result"
 
 
@@ -167,14 +177,29 @@ def test_sartorius_measure_with_timeout(mocker):
 
     sub = SartoriusUsb()
     mocker.patch.object(sub, "get", return_value=[])
-    mocker.patch.object(sub, "parse_measurement", return_value="parsed result")
+    mocker.patch("sartoriusb.parse_measurement", return_value="parsed result")
 
     result = sub.measure()
 
     assert sub.get.call_count == 1
     assert sub.get.call_args == call(CMD_PRINT)
-    assert sub.parse_measurement.call_count == 0
     assert result == (None, None, None, None, "Connection Timeout")
+
+def test_sartorius_context_manager(mocker):
+    from sartoriusb import SartoriusUsb
+
+    sub = SartoriusUsb()
+    mocker.patch.object(sub, "connect")
+    mocker.patch.object(sub, "close")
+
+    with sub as context:
+        assert sub is context
+        assert sub.connect.call_count == 1
+        assert sub.close.call_count == 0
+
+    assert sub.connect.call_count == 1
+    assert sub.close.call_count == 1
+
 
 
 @pytest.mark.parametrize(
@@ -188,29 +213,23 @@ def test_sartorius_measure_with_timeout(mocker):
 def test_sartorius_parse_measurement(
     mocker, value, count_16, count_22, expected
 ):
-    from sartoriusb import SartoriusUsb
+    from sartoriusb import parse_measurement
 
-    sub = SartoriusUsb()
-    mocker.patch.object(sub, "_parse_16_char_output", return_value="16")
-    mocker.patch.object(sub, "_parse_22_char_output", return_value="22")
+    mocker.patch("sartoriusb._parse_16_char_output", return_value="16")
+    mocker.patch("sartoriusb._parse_22_char_output", return_value="22")
 
-    result = sub.parse_measurement(value)
+    result = parse_measurement(value)
 
-    assert sub._parse_16_char_output.call_count == count_16
-    assert sub._parse_22_char_output.call_count == count_22
     assert result == expected
 
 
 def test_sartorius_parse_22_char_output(mocker):
-    from sartoriusb import SartoriusUsb
+    from sartoriusb import _parse_22_char_output
 
-    sub = SartoriusUsb()
-    mocker.patch.object(sub, "_parse_16_char_output", return_value="16")
+    mocker.patch("sartoriusb._parse_16_char_output", return_value="16")
 
-    result = sub._parse_22_char_output(" mode value ")
+    result = _parse_22_char_output(" mode value ")
 
-    assert sub._parse_16_char_output.call_count == 1
-    assert sub._parse_16_char_output.call_args == call("value ", "mode")
     assert result == "16"
 
 
@@ -227,10 +246,9 @@ def test_sartorius_parse_22_char_output(mocker):
     ],
 )
 def test_sartorius_measurement_is_message(value, expected):
-    from sartoriusb import SartoriusUsb
+    from sartoriusb import _is_message
 
-    sub = SartoriusUsb()
-    result = sub._is_message(value)
+    result = _is_message(value)
 
     assert result == expected
 
@@ -248,10 +266,9 @@ def test_sartorius_measurement_is_message(value, expected):
     ],
 )
 def test_sartorius_remove_calibration_note(value, expected):
-    from sartoriusb import SartoriusUsb
+    from sartoriusb import _remove_calibration_note
 
-    sub = SartoriusUsb()
-    result = sub._remove_calibration_note(value)
+    result = _remove_calibration_note(value)
 
     assert result == expected
 
@@ -268,34 +285,18 @@ def test_sartorius_remove_calibration_note(value, expected):
     ],
 )
 def test_sartorius_parse_16_char_output(text, value, unit, stable, cal):
-    from sartoriusb import SartoriusUsb
+    from sartoriusb import _parse_16_char_output
 
-    sub = SartoriusUsb()
-    result = sub._parse_16_char_output(text, mode="X")
+    result = _parse_16_char_output(text, mode="X")
 
     assert result == ("X", value, unit, stable, None)
 
 
 def test_sartorius_parse_16_char_output_on_message(mocker):
-    from sartoriusb import SartoriusUsb
+    from sartoriusb import _parse_16_char_output
 
-    sub = SartoriusUsb()
-    result = sub._parse_16_char_output(" some Error ")
+    result = _parse_16_char_output(" some Error ")
 
     assert result == (None, None, None, None, "some Error")
 
 
-def test_sartorius_context_manager(mocker):
-    from sartoriusb import SartoriusUsb
-
-    sub = SartoriusUsb()
-    mocker.patch.object(sub, "connect")
-    mocker.patch.object(sub, "close")
-
-    with sub as context:
-        assert sub is context
-        assert sub.connect.call_count == 1
-        assert sub.close.call_count == 0
-
-    assert sub.connect.call_count == 1
-    assert sub.close.call_count == 1
