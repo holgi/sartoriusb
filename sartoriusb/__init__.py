@@ -4,7 +4,7 @@ Controlling a Sartorius Scale via USB
 
 """
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 import serial
 
@@ -45,8 +45,7 @@ LF = chr(10).encode("utf-8")
 
 
 Measurement = namedtuple(
-    "Measurement",
-    ["mode", "value", "unit", "stable", "message"],
+    "Measurement", ["mode", "value", "unit", "stable", "message"],
 )
 
 
@@ -136,8 +135,7 @@ class SartoriusUsb:
             return self.parse_measurement(raw_data)
         else:
             # propably serial connection timeout
-            return Measurement(
-                None, None, None, None, "Connection Timeout")
+            return Measurement(None, None, None, None, "Connection Timeout")
 
     def parse_measurement(self, raw_data):
         """ parses the raw data from a measurement """
@@ -184,9 +182,7 @@ class SartoriusUsb:
             unit = None
             stable = False
 
-        return Measurement(
-            mode, value, unit, stable, None
-        )
+        return Measurement(mode, value, unit, stable, None)
 
     def _is_message(self, raw_data):
         """ returns the message that occured in a measurement or False """

@@ -174,9 +174,8 @@ def test_sartorius_measure_with_timeout(mocker):
     assert sub.get.call_count == 1
     assert sub.get.call_args == call(CMD_PRINT)
     assert sub.parse_measurement.call_count == 0
-    assert result == (
-                None, None, None, None, "Connection Timeout"
-            )
+    assert result == (None, None, None, None, "Connection Timeout")
+
 
 @pytest.mark.parametrize(
     "value,count_16,count_22,expected",

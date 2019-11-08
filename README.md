@@ -1,4 +1,4 @@
-# pySartoriUSB
+# SartoriUSB
 
 USB serial connection to Sartorius Scales
 
