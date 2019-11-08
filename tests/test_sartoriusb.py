@@ -175,7 +175,7 @@ def test_sartorius_measure_with_timeout(mocker):
     assert sub.get.call_args == call(CMD_PRINT)
     assert sub.parse_measurement.call_count == 0
     assert result == (
-                None, None, None, None, "Connection Timeout", None
+                None, None, None, None, "Connection Timeout"
             )
 
 @pytest.mark.parametrize(
@@ -220,11 +220,11 @@ def test_sartorius_parse_22_char_output(mocker):
     [
         ("12345", False),
         (" some text ", False),
-        (" Error 123 ", "Error 123"),
-        ("highlander ", "highlander"),
-        (" too low", "too low"),
-        ("123--456", "123--456"),
-        ("some calibration", "some calibration"),
+        (" Error 123 ", True),
+        ("highlander ", True),
+        (" too low", True),
+        ("123--456", True),
+        ("some calibration", True),
     ],
 )
 def test_sartorius_measurement_is_message(value, expected):
@@ -237,24 +237,24 @@ def test_sartorius_measurement_is_message(value, expected):
 
 
 @pytest.mark.parametrize(
-    "value,data,cal",
+    "value,expected",
     [
-        ("", "", True),
-        ("1", "1", True),
-        ("1]3", "1]3", True),
-        ("[", "", False),
-        ("1[2", "12", False),
-        ("1[2]", "12  ", False),
-        ("1[2] x", "12   x", False),
+        ("", ""),
+        ("1", "1"),
+        ("1]3", "1]3"),
+        ("[", ""),
+        ("1[2", "12"),
+        ("1[2]", "12  "),
+        ("1[2] x", "12   x"),
     ],
 )
-def test_sartorius_adjust_raw_data_for_calibration_note(value, data, cal):
+def test_sartorius_remove_calibration_note(value, expected):
     from sartoriusb import SartoriusUsb
 
     sub = SartoriusUsb()
-    result = sub._adjust_raw_data_for_calibration_note(value)
+    result = sub._remove_calibration_note(value)
 
-    assert result == (data, cal)
+    assert result == expected
 
 
 @pytest.mark.parametrize(
@@ -274,17 +274,16 @@ def test_sartorius_parse_16_char_output(text, value, unit, stable, cal):
     sub = SartoriusUsb()
     result = sub._parse_16_char_output(text, mode="X")
 
-    assert result == ("X", value, unit, stable, False, cal)
+    assert result == ("X", value, unit, stable, None)
 
 
 def test_sartorius_parse_16_char_output_on_message(mocker):
     from sartoriusb import SartoriusUsb
 
     sub = SartoriusUsb()
-    mocker.patch.object(sub, "_adjust_raw_data_for_calibration_note")
     result = sub._parse_16_char_output(" some Error ")
 
-    assert result == (None, None, None, None, "some Error", None)
+    assert result == (None, None, None, None, "some Error")
 
 
 def test_sartorius_context_manager(mocker):

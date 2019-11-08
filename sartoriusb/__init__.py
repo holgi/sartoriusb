@@ -46,10 +46,8 @@ LF = chr(10).encode("utf-8")
 
 Measurement = namedtuple(
     "Measurement",
-    ["mode", "value", "unit", "stable", "message", "calibration"],
+    ["mode", "value", "unit", "stable", "message"],
 )
-
-_AdjustedRawData = namedtuple("_AdjustedRawData", ["data", "calibration"])
 
 
 class SartoriusUsb:
@@ -139,8 +137,7 @@ class SartoriusUsb:
         else:
             # propably serial connection timeout
             return Measurement(
-                None, None, None, None, "Connection Timeout", None
-            )
+                None, None, None, None, "Connection Timeout")
 
     def parse_measurement(self, raw_data):
         """ parses the raw data from a measurement """
@@ -168,14 +165,14 @@ class SartoriusUsb:
         function parses a 16 character output.
         """
 
-        msg = self._is_message(raw_data)
-        if msg:
-            return Measurement(None, None, None, None, msg, None)
+        if self._is_message(raw_data):
+            msg = raw_data.strip()
+            return Measurement(None, None, None, None, msg)
 
-        adjusted = self._adjust_raw_data_for_calibration_note(raw_data)
+        raw_data = self._remove_calibration_note(raw_data)
 
-        sign = adjusted.data[0].strip()
-        value_and_unit = adjusted.data[1:].strip()
+        sign = raw_data[0].strip()
+        value_and_unit = raw_data[1:].strip()
         parts = value_and_unit.rsplit(" ", 1)
         raw_value = parts[0]
         value = sign + "".join(raw_value.split())
@@ -188,22 +185,32 @@ class SartoriusUsb:
             stable = False
 
         return Measurement(
-            mode, value, unit, stable, msg, adjusted.calibration
+            mode, value, unit, stable, None
         )
 
     def _is_message(self, raw_data):
         """ returns the message that occured in a measurement or False """
         for identifier in ("high", "low", "cal", "err", "--"):
             if identifier in raw_data.lower():
-                return raw_data.strip()
+                return True
         return False
 
-    def _adjust_raw_data_for_calibration_note(self, raw_data):
-        """ adjusts the raw data string if a calibration note is present """
+    def _remove_calibration_note(self, raw_data):
+        """ adjusts the raw data string if a calibration note is present
+
+        According to the manual, this should not happen in SBI mode of the
+        scale. This is included to prevent hiccups but probably not handled
+        the right way....
+
+        The data with a calibration node on in put and output of this method
+
+        in:  "+123.4567[8]g  "
+        out: "+123.45678  g  "
+
+        """
         if "[" in raw_data:
-            adjusted = raw_data.replace("[", "").replace("]", "  ")
-            return _AdjustedRawData(adjusted, False)
-        return _AdjustedRawData(raw_data, True)
+            raw_data = raw_data.replace("[", "").replace("]", "  ")
+        return raw_data
 
     def __enter__(self):
         """ Context manager: establishes connection """
