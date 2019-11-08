@@ -6,7 +6,7 @@ USB serial connection to Sartorius Scales
 
 ```python
 
-    import pysartoriusb as sub
+    import sartoriusb as sub
 
     with sub.SartoriusUsb('COM4') as conn:
         result = conn.measure()
@@ -16,22 +16,20 @@ USB serial connection to Sartorius Scales
     assert result.unit == "mg"
     assert result.stable == True
     assert result.error == False
-    assert result.calibration == True
 ```
 
-## Available Commands
+## Methods
 
 There are two methods available to send commands to the scale:
 
 - ```SartoriusUsb.send(cmd)```: just sends a command, results must be read programatically
 - ```SartoriusUsb.get(cmd)```: send a command and return the answer from the scale
 
-
 Since "printing" the current measurement and parsing the result is something
 very common, there is a simple method for it: ```SartoriusUsb.measure()```
 
 
-These commands are available:
+## Available Commands
 
 - ```CMD_PRINT```: "Print" the current measurement result
 - ```CMD_TARA```: performa a tara or set the display to zero
