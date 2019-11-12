@@ -100,3 +100,23 @@ The function returns a `sartoriusb.Measurement` named tuple:
 - `CMD_ADJUST_EXTERNAL`: start external adjustment with standard weights
 
 - `CMD_RESTART`: restart the scale
+
+
+
+## Development
+
+To install the development version of SartoriUSB:
+
+    git clone https://github.com/holgi/sartoriusb.git
+    cd sartoriusb
+
+    # create a virtual environment and activate it
+    python3 -m venv --prompt sartorius .venv
+    .venv/bin/activate
+
+    # upgrade pip, install flit and sartoriusb
+    python3 -m pip install --upgrade pip
+    python3 -m pip install flit
+    python3 -m flit install --pth-file
+
+To run the tests, run `make tests` or `make coverage` for a complete report.
