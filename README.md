@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.com/holgi/sartoriusb.svg?branch=master)](https://travis-ci.com/holgi/sartoriusb)
 
-USB serial connection to Sartorius Scales
+USB serial connection to Sartorius Quintix Scales
 
 ## Example:
 

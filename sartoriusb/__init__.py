@@ -1,10 +1,10 @@
 """ pysartoriusb
 
-Controlling a Sartorius Scale via USB
+Controlling a Sartorius Quintix Scale via USB
 
 """
 
-__version__ = "0.2.1"
+__version__ = "0.2.2"
 
 import serial
 
