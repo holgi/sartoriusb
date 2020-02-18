@@ -10,6 +10,8 @@ author-email = "frey@imtek.de"
 home-page = "https://github.com/holgi/sartoriusb"
 description-file = "README.md"
 license = "Beerware"
+
+# see https://pypi.org/classifiers/
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -26,15 +28,17 @@ requires-python = ">=3.7"
 
 [tool.flit.metadata.requires-extra]
 test = [
-    "black",
-    "flake8",
-    "flake8-comprehensions",
     "pytest >=4.0.0",
     "pytest-cov",
     "pytest-mock",
 ]
 dev = [
+    "black",
+    "flake8",
+    "flake8-comprehensions",
+    "isort",
     "keyring",
+    "pre-commit",
 ]
 
 [tool.black]
@@ -50,3 +54,9 @@ exclude = '''
   | dist
 )/
 '''
+
+[tool.isort]
+line_length=79
+multi_line_output=3
+length_sort="True"
+include_trailing_comma="True"

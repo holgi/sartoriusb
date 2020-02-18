@@ -4,11 +4,11 @@ Controlling a Sartorius Quintix Scale via USB
 
 """
 
-__version__ = "0.2.2"
-
-import serial
+__version__ = "0.2.3"
 
 from collections import namedtuple
+
+import serial
 
 CMD_PRINT = b"P"
 CMD_TARA = b"T"
@@ -148,14 +148,13 @@ class SartoriusUsb:
         self.close()
 
 
-
-
 def parse_measurement(raw_data):
     """ parses the raw data from a measurement """
     if len(raw_data) <= 16:
         return _parse_16_char_output(raw_data)
     else:
         return _parse_22_char_output(raw_data)
+
 
 def _parse_22_char_output(raw_data):
     """ parse a 16 character measurement output
@@ -168,6 +167,7 @@ def _parse_22_char_output(raw_data):
     rest = raw_data[6:]
 
     return _parse_16_char_output(rest, mode)
+
 
 def _parse_16_char_output(raw_data, mode="unknown"):
     """ parse a 16 character measurement output
@@ -197,12 +197,14 @@ def _parse_16_char_output(raw_data, mode="unknown"):
 
     return Measurement(mode, value, unit, stable, None)
 
+
 def _is_message(raw_data):
     """ returns the message that occured in a measurement or False """
     for identifier in ("high", "low", "cal", "err", "--"):
         if identifier in raw_data.lower():
             return True
     return False
+
 
 def _remove_calibration_note(raw_data):
     """ adjusts the raw data string if a calibration note is present

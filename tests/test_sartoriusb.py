@@ -1,6 +1,6 @@
-import pytest
-
 from unittest.mock import call
+
+import pytest
 
 
 def test_sartorius_usb_init():
@@ -185,6 +185,7 @@ def test_sartorius_measure_with_timeout(mocker):
     assert sub.get.call_args == call(CMD_PRINT)
     assert result == (None, None, None, None, "Connection Timeout")
 
+
 def test_sartorius_context_manager(mocker):
     from sartoriusb import SartoriusUsb
 
@@ -199,7 +200,6 @@ def test_sartorius_context_manager(mocker):
 
     assert sub.connect.call_count == 1
     assert sub.close.call_count == 1
-
 
 
 @pytest.mark.parametrize(
@@ -298,5 +298,3 @@ def test_sartorius_parse_16_char_output_on_message(mocker):
     result = _parse_16_char_output(" some Error ")
 
     assert result == (None, None, None, None, "some Error")
-
-
