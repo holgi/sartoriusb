@@ -4,7 +4,7 @@ Controlling a Sartorius Quintix Scale via USB
 
 """
 
-__version__ = "0.2.3"
+__version__ = "0.2.4"
 
 from collections import namedtuple
 

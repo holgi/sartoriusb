@@ -82,7 +82,7 @@ def test_sartorius_usb_close_calls_close_on_established_connection(mocker):
     "value,expected", [(b"bytes", b"bytes"), ("string", b"string")]
 )
 def test_sartorius_sends_bytes(mocker, value, expected):
-    from sartoriusb import SartoriusUsb, ESC, CR, LF
+    from sartoriusb import CR, LF, ESC, SartoriusUsb
 
     sub = SartoriusUsb()
     sub._con = mocker.Mock()
@@ -159,7 +159,7 @@ def test_sartorius_get(mocker):
 
 
 def test_sartorius_measure_with_data(mocker):
-    from sartoriusb import SartoriusUsb, CMD_PRINT
+    from sartoriusb import CMD_PRINT, SartoriusUsb
 
     sub = SartoriusUsb()
     mocker.patch.object(sub, "get", return_value=["value", "some other stuff"])
@@ -173,7 +173,7 @@ def test_sartorius_measure_with_data(mocker):
 
 
 def test_sartorius_measure_with_timeout(mocker):
-    from sartoriusb import SartoriusUsb, CMD_PRINT
+    from sartoriusb import CMD_PRINT, SartoriusUsb
 
     sub = SartoriusUsb()
     mocker.patch.object(sub, "get", return_value=[])
