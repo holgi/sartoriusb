@@ -1,3 +1,15 @@
+0.2.5 - heartbeat update
+------------------------
+
+  - no changes, just a new version to show I still care about it
+
+
+0.2.4 - heartbeat update
+------------------------
+
+  - no changes, just a new version to show I still care about it
+
+
 0.2.3 - setup tuning
 --------------------
 
