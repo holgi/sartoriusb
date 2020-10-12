@@ -50,8 +50,8 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr htmlcov/
 
 lint: ## reformat with black and check style with flake8
-	isort -rc sartoriusb
-	isort -rc tests
+	isort sartoriusb
+	isort tests
 	black sartoriusb tests
 	flake8 sartoriusb tests
 
